@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>3-2 칭찬해주세요💕</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Google Fonts: Gowun Dodum & Noto Sans KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind Custom Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              100: '#ffe4e6',
+              200: '#fecdd3',
+              300: '#fda4af',
+              400: '#fb7185',
+              500: '#f43f5e',
+              600: '#e11d48',
+              700: '#be123c',
+            },
+            warm: {
+              card: '#FFFDF9',
+              bg: '#FFF8F6'
+            }
+          },
+          fontFamily: {
+            sans: ['"Noto Sans KR"', 'sans-serif'],
+            hand: ['"Gowun Dodum"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background-color: #FFF6F7;
+      background-image: radial-gradient(#FDE2E4 0.8px, transparent 0.8px);
+      background-size: 18px 18px;
+      -webkit-tap-highlight-color: transparent;
+    }
+    
+    .font-warm {
+      font-family: 'Gowun Dodum', sans-serif;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FECDD3;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FDA4AF;
+    }
+
+    @keyframes heartPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35) rotate(-10deg); }
+      100% { transform: scale(1); }
+    }
+    .heart-pop {
+      animation: heartPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+  </style>
+</head>
+<body class="text-slate-700 min-h-screen flex flex-col antialiased selection:bg-rose-200">
+
+  <!-- 헤더 영역 -->
+  <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-rose-100 shadow-sm transition-all">
+    <div class="max-w-lg mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 flex items-center justify-center text-white shadow-md shadow-rose-200">
+          <i class="fa-solid fa-heart text-lg animate-pulse"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-gray-800 leading-tight font-warm flex items-center gap-1.5">
+            3-2 칭찬해주세요<span class="text-rose-500">💕</span>
+          </h1>
+          <p class="text-[11px] font-medium text-rose-600">항동중학교 따뜻한 칭찬 우체통</p>
+        </div>
+      </div>
+      
+      <!-- 새로고침 버튼 -->
+      <button id="btnRefresh" onclick="loadCompliments(true)" title="칭찬 목록 새로고침" 
+              class="w-9 h-9 rounded-full bg-rose-50 text-rose-500 hover:bg-rose-100 active:scale-95 flex items-center justify-center transition">
+        <i id="refreshIcon" class="fa-solid fa-rotate-right text-sm"></i>
+      </button>
+    </div>
+
+    <!-- 탭 네비게이션 -->
+    <div class="max-w-lg mx-auto px-4 flex border-t border-rose-50">
+      <button id="tabBtnFeed" onclick="switchTab('feed')" 
+              class="flex-1 py-2.5 text-center text-sm font-semibold border-b-2 border-rose-500 text-rose-600 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-envelope-open-text"></i>
+        <span>칭찬 피드</span>
+        <span id="badgeCount" class="bg-rose-100 text-rose-600 text-xs px-2 py-0.5 rounded-full hidden">0</span>
+      </button>
+      <button id="tabBtnWrite" onclick="switchTab('write')" 
+              class="flex-1 py-2.5 text-center text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-pen-nib"></i>
+        <span>칭찬 남기기</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-lg w-full mx-auto p-4 space-y-4 pb-20">
+
+    <!-- TAB 1: 칭찬 피드 화면 -->
+    <section id="tabFeed" class="space-y-4">
+      <div class="bg-gradient-to-r from-rose-400 via-pink-400 to-rose-300 rounded-3xl p-4 text-white shadow-lg shadow-rose-200/50 relative overflow-hidden">
+        <div class="relative z-10">
+          <p class="text-xs text-rose-100 font-medium">오늘도 빛나는 우리 3-2반 ✨</p>
+          <h2 class="text-base font-bold mt-0.5 font-warm">친구의 작은 배려와 따뜻함을 칭찬해 주세요</h2>
+        </div>
+        <i class="fa-solid fa-envelope text-white/15 text-7xl absolute -right-3 -bottom-4 pointer-events-none"></i>
+      </div>
+
+      <!-- 로딩 인디케이터 -->
+      <div id="feedLoading" class="py-16 text-center">
+        <div class="inline-block w-8 h-8 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mb-3"></div>
+        <p class="text-xs text-slate-400 font-medium">따뜻한 칭찬 카드들을 가져오는 중...</p>
+      </div>
+
+      <!-- 빈 피드 안내 -->
+      <div id="emptyFeed" class="hidden py-16 text-center bg-white rounded-3xl p-8 border border-rose-100 shadow-sm">
+        <div class="w-16 h-16 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-3 text-rose-300 text-2xl">
+          <i class="fa-regular fa-comment-dots"></i>
+        </div>
+        <p class="text-sm font-semibold text-gray-700 font-warm">아직 등록된 칭찬이 없어요</p>
+        <p class="text-xs text-slate-400 mt-1 mb-4">우리 반 친구에게 첫 번째 따뜻한 마음을 전해보세요!</p>
+        <button onclick="switchTab('write')" class="inline-flex items-center gap-1.5 px-4 py-2 bg-rose-500 text-white rounded-2xl text-xs font-semibold shadow hover:bg-rose-600 transition">
+          <i class="fa-solid fa-pencil"></i> 첫 칭찬 쓰러 가기
+        </button>
+      </div>
+
+      <!-- 피드 카드 리스트 컨테이너 -->
+      <div id="complimentList" class="space-y-3.5"></div>
+    </section>
+
+    <!-- TAB 2: 칭찬 작성 폼 화면 -->
+    <section id="tabWrite" class="hidden">
+      <div class="bg-white rounded-3xl p-5 border border-rose-100 shadow-sm space-y-4">
+        <div class="border-b border-rose-50 pb-3">
+          <h2 class="text-base font-bold text-gray-800 font-warm flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            칭찬 배달 신청서
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">말 한마디가 친구의 하루를 행복하게 만듭니다 🌸</p>
+        </div>
+
+        <form id="complimentForm" onsubmit="submitCompliment(event)" class="space-y-4">
+          <!-- 받는 사람 선택 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1">
+              <i class="fa-solid fa-user-tag text-rose-400"></i>
+              칭찬받을 친구 (받는이) <span class="text-rose-500">*</span>
+            </label>
+            <div class="relative">
+              <select id="selectReceiver" required
+                      class="w-full bg-rose-50/50 border border-rose-200 text-slate-700 text-sm rounded-2xl p-3 pr-8 focus:ring-2 focus:ring-rose-400 focus:bg-white outline-none transition appearance-none cursor-pointer">
+                <option value="" disabled selected>친구 이름을 선택해주세요</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-rose-400">
+                <i class="fa-solid fa-chevron-down text-xs"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 감정 이모지 선택 -->
+          <div>
+            <label class="block text-xs font-bold text-slate-600 mb-1.5 flex items-center gap-1">
+              <i class="fa-regular fa-face-smile text-rose-400"></i>
+              마음 스티커 선택
+            </label>
+            <div class="grid grid-cols-6 gap-2" id="emojiContainer"></div>
+            <input type="hidden" id="selectedEmoji" value="💖">
+          </div>
+
+          <!-- 칭찬 내용 -->
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="text-xs font-bold text-slate-600 flex items-center gap-1">
+                <i class="fa-regular fa-comment-quote text-rose-400"></i>
+                칭찬 내용 <span class="text-rose-500">*</span>
+              </label>
+              <span id="charCount" class="text-[11px] text-slate-400 font-medium">0 / 200</span>
+            </div>
+            <textarea id="textContent" rows="4" maxlength="200" required
+                      placeholder="예) 오늘 발표할 때 목소리도 크고 준비도 열심히 해와서 정말 멋있었어! 고마워 😊"
+                      oninput="updateCharCount()"
+                      class="w-full bg-rose-50/30 border border-rose-200 text-slate-800 text-sm rounded-2xl p-3.5 focus:ring-2 focus:ring-rose-400 focus:bg-white outline-none transition placeholder:text-slate-300 resize-none leading-relaxed"></textarea>
+          </div>
+
+          <!-- 보낸 사람 설정 (익명 / 실명) -->
+          <div class="bg-rose-50/40 rounded-2xl p-3 border border-rose-100 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <label for="checkAnonymous" class="text-xs font-semibold text-slate-700 cursor-pointer flex items-center gap-2 select-none">
+                <input type="checkbox" id="checkAnonymous" checked onchange="toggleAnonymousMode()" 
+                       class="w-4 h-4 text-rose-500 rounded border-rose-300 focus:ring-rose-400 accent-rose-500 cursor-pointer">
+                <span>익명으로 보내기 (비밀친구) 🤫</span>
+              </label>
+            </div>
+            
+            <div id="senderInputWrapper" class="hidden">
+              <input type="text" id="inputSender" maxlength="15" placeholder="내 이름 또는 별명을 적어주세요 (예: 짝꿍 민서)"
+                     class="w-full bg-white border border-rose-200 text-slate-700 text-xs rounded-xl p-2.5 outline-none focus:ring-1 focus:ring-rose-400">
+            </div>
+          </div>
+
+          <!-- 전송 버튼 -->
+          <button type="submit" id="btnSubmit"
+                  class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-bold rounded-2xl shadow-lg shadow-rose-200 active:scale-[0.98] transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane text-sm"></i>
+            <span>칭찬 카드 보내기</span>
+          </button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- 토스트 알림창 -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+    <div id="toastContent" class="px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2.5 text-xs font-semibold bg-gray-900 text-white min-w-[260px] justify-center">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-rose-400"></i>
+      <span id="toastMessage">완료되었습니다.</span>
+    </div>
+  </div>
+
+  <script>
+    /*************************************************************
+     * ⚠️ 중요: Google Apps Script 배포 후 발급받은 웹 앱 URL을 붙여넣으세요.
+     * 예시: "https://script.google.com/macros/s/AKfycbx.../exec"
+     *************************************************************/
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyNjDHJBeiytr-Mae4kphZEPYefsVaoem9Lf31IEmdvWP2knDV2VYitKR0NGuYQizhldg/exec";
+
+    // 전역 상태 변수
+    let studentList = [];
+    let complimentList = [];
+    const EMOJI_OPTIONS = ['💖', '🌸', '🌟', '👏', '🍀', '🧁', '💌', '🎉', '💪', '☀️', '🥰', '🎈'];
+    
+    const LIKED_STORAGE_KEY = 'hangdong_3_2_liked_ids';
+    let likedSet = new Set();
+
+    try {
+      const saved = localStorage.getItem(LIKED_STORAGE_KEY);
+      if (saved) {
+        likedSet = new Set(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.warn('LocalStorage error:', e);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderEmojiPicker();
+      initAppData();
+    });
+
+    // 탭 전환 핸들러
+    function switchTab(tabName) {
+      const tabFeed = document.getElementById('tabFeed');
+      const tabWrite = document.getElementById('tabWrite');
+      const tabBtnFeed = document.getElementById('tabBtnFeed');
+      const tabBtnWrite = document.getElementById('tabBtnWrite');
+
+      if (tabName === 'feed') {
+        tabFeed.classList.remove('hidden');
+        tabWrite.classList.add('hidden');
+        tabBtnFeed.className = 'flex-1 py-2.5 text-center text-sm font-semibold border-b-2 border-rose-500 text-rose-600 transition flex items-center justify-center gap-2';
+        tabBtnWrite.className = 'flex-1 py-2.5 text-center text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center gap-2';
+      } else {
+        tabFeed.classList.add('hidden');
+        tabWrite.classList.remove('hidden');
+        tabBtnWrite.className = 'flex-1 py-2.5 text-center text-sm font-semibold border-b-2 border-rose-500 text-rose-600 transition flex items-center justify-center gap-2';
+        tabBtnFeed.className = 'flex-1 py-2.5 text-center text-sm font-medium border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition flex items-center justify-center gap-2';
+      }
+    }
+
+    function renderEmojiPicker() {
+      const container = document.getElementById('emojiContainer');
+      container.innerHTML = '';
+
+      EMOJI_OPTIONS.forEach((emoji, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `emoji-btn h-11 text-xl rounded-2xl flex items-center justify-center border transition-all ${
+          index === 0 ? 'bg-rose-100 border-rose-400 scale-105 shadow-sm' : 'bg-rose-50/40 border-rose-100 hover:bg-rose-100'
+        }`;
+        btn.textContent = emoji;
+        btn.onclick = () => selectEmoji(emoji, btn);
+        container.appendChild(btn);
+      });
+    }
+
+    function selectEmoji(emoji, targetBtn) {
+      document.getElementById('selectedEmoji').value = emoji;
+      document.querySelectorAll('.emoji-btn').forEach(btn => {
+        btn.classList.remove('bg-rose-100', 'border-rose-400', 'scale-105', 'shadow-sm');
+        btn.classList.add('bg-rose-50/40', 'border-rose-100');
+      });
+      targetBtn.classList.remove('bg-rose-50/40', 'border-rose-100');
+      targetBtn.classList.add('bg-rose-100', 'border-rose-400', 'scale-105', 'shadow-sm');
+    }
+
+    function updateCharCount() {
+      const text = document.getElementById('textContent').value;
+      const counter = document.getElementById('charCount');
+      counter.textContent = `${text.length} / 200`;
+      if (text.length >= 190) {
+        counter.classList.add('text-rose-500');
+      } else {
+        counter.classList.remove('text-rose-500');
+      }
+    }
+
+    function toggleAnonymousMode() {
+      const isAnon = document.getElementById('checkAnonymous').checked;
+      const wrapper = document.getElementById('senderInputWrapper');
+      if (isAnon) {
+        wrapper.classList.add('hidden');
+      } else {
+        wrapper.classList.remove('hidden');
+        document.getElementById('inputSender').focus();
+      }
+    }
+
+    // 1. 초기 데이터 로딩 (학생 목록 + 칭찬 목록 동시 호출)
+    async function initAppData() {
+      if (!GAS_API_URL || GAS_API_URL.includes('여기에_구글_웹앱_URL')) {
+        // GAS URL이 아직 설정되지 않았을 때 모의 데이터 표시
+        console.warn('GAS_API_URL 미설정: 데모 모드로 작동합니다.');
+        populateStudentSelect(['강민준', '김서연', '김도윤', '박서윤', '박하은', '선생님💕']);
+        renderComplimentsList([
+          {
+            id: 'mock_1',
+            createdAt: '2026.09.06 14:30',
+            sender: '익명의 친구',
+            receiver: '김서연',
+            emoji: '🌸',
+            content: '청소 시간에 다들 가버렸는데 끝까지 남아서 교실 바닥 쓸어줘서 너무 고마웠어! 넌 정말 천사야 🤍',
+            likes: 5
+          }
+        ]);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${GAS_API_URL}?action=getAll`);
+        const result = await response.json();
+
+        if (result.success) {
+          studentList = result.students || [];
+          populateStudentSelect(studentList);
+
+          complimentList = result.compliments || [];
+          renderComplimentsList(complimentList);
+        } else {
+          showToast('데이터 로드 실패: ' + result.message, 'error');
+        }
+      } catch (err) {
+        document.getElementById('feedLoading').classList.add('hidden');
+        showToast('서버 연결 중 오류가 발생했습니다.', 'error');
+        console.error('Init error:', err);
+      }
+    }
+
+    function populateStudentSelect(students) {
+      const select = document.getElementById('selectReceiver');
+      select.innerHTML = '<option value="" disabled selected>친구 이름을 선택해주세요</option>';
+      students.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        select.appendChild(opt);
+      });
+    }
+
+    // 2. 칭찬 목록 새로고침
+    async function loadCompliments(isManualRefresh = false) {
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (isManualRefresh) refreshIcon.classList.add('animate-spin');
+
+      if (!GAS_API_URL || GAS_API_URL.includes('여기에_구글_웹앱_URL')) {
+        setTimeout(() => {
+          if (isManualRefresh) refreshIcon.classList.remove('animate-spin');
+          showToast('칭찬 목록을 갱신했습니다 ✨');
+        }, 500);
+        return;
+      }
+
+      try {
+        const response = await fetch(`${GAS_API_URL}?action=getCompliments`);
+        const result = await response.json();
+
+        if (result.success) {
+          complimentList = result.compliments || [];
+          renderComplimentsList(complimentList);
+          if (isManualRefresh) showToast('칭찬 목록을 갱신했습니다 ✨');
+        } else {
+          showToast('칭찬 목록 로드 실패', 'error');
+        }
+      } catch (err) {
+        showToast('칭찬 목록을 불러오지 못했습니다.', 'error');
+        console.error('Fetch error:', err);
+      } finally {
+        if (isManualRefresh) refreshIcon.classList.remove('animate-spin');
+      }
+    }
+
+    function renderComplimentsList(items) {
+      const container = document.getElementById('complimentList');
+      const emptyFeed = document.getElementById('emptyFeed');
+      const loading = document.getElementById('feedLoading');
+      const badgeCount = document.getElementById('badgeCount');
+
+      loading.classList.add('hidden');
+
+      if (!items || items.length === 0) {
+        emptyFeed.classList.remove('hidden');
+        container.innerHTML = '';
+        badgeCount.classList.add('hidden');
+        return;
+      }
+
+      emptyFeed.classList.add('hidden');
+      badgeCount.textContent = items.length;
+      badgeCount.classList.remove('hidden');
+
+      let html = '';
+      items.forEach(card => {
+        const isLiked = likedSet.has(card.id);
+        html += `
+          <div class="bg-white rounded-3xl p-4 sm:p-5 border border-rose-100 shadow-[0_4px_16px_rgba(244,63,94,0.05)] hover:shadow-[0_6px_20px_rgba(244,63,94,0.1)] transition-all">
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2.5">
+                <span class="w-10 h-10 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-xl shadow-inner">
+                  ${card.emoji || '💖'}
+                </span>
+                <div>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-[11px] font-bold tracking-tight">
+                      To. ${escapeHtml(card.receiver)}
+                    </span>
+                    <span class="text-xs text-slate-400 font-normal">
+                      From. <strong class="text-slate-600">${escapeHtml(card.sender)}</strong>
+                    </span>
+                  </div>
+                  <span class="text-[10px] text-slate-300 mt-0.5 block">${card.createdAt}</span>
+                </div>
+              </div>
+
+              <button onclick="handleLike('${card.id}', this)" 
+                      class="like-btn group flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition active:scale-90 ${
+                        isLiked 
+                          ? 'bg-rose-50 border-rose-300 text-rose-500' 
+                          : 'bg-white border-slate-200 text-slate-400 hover:border-rose-200 hover:text-rose-400'
+                      }">
+                <i class="fa-heart ${isLiked ? 'fa-solid text-rose-500 heart-pop' : 'fa-regular'}"></i>
+                <span class="like-count font-mono font-bold">${card.likes || 0}</span>
+              </button>
+            </div>
+
+            <div class="bg-rose-50/30 rounded-2xl p-3.5 text-sm text-slate-700 leading-relaxed break-words whitespace-pre-wrap font-normal">
+              ${escapeHtml(card.content)}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // 3. 칭찬 제출 핸들러 (fetch POST)
+    async function submitCompliment(e) {
+      e.preventDefault();
+
+      const receiver = document.getElementById('selectReceiver').value;
+      const content = document.getElementById('textContent').value.trim();
+      const emoji = document.getElementById('selectedEmoji').value;
+      const isAnon = document.getElementById('checkAnonymous').checked;
+      let sender = '익명의 친구';
+
+      if (!isAnon) {
+        const inputVal = document.getElementById('inputSender').value.trim();
+        if (inputVal) sender = inputVal;
+      }
+
+      if (!receiver) {
+        showToast('칭찬받을 친구를 선택해 주세요!', 'warning');
+        return;
+      }
+      if (!content) {
+        showToast('칭찬 내용을 입력해 주세요!', 'warning');
+        return;
+      }
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div><span>칭찬 배달 중...</span>`;
+
+      const payload = {
+        action: 'addCompliment',
+        data: { receiver, content, emoji, sender }
+      };
+
+      if (!GAS_API_URL || GAS_API_URL.includes('여기에_구글_웹앱_URL')) {
+        setTimeout(() => {
+          btnSubmit.disabled = false;
+          btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-sm"></i><span>칭찬 카드 보내기</span>`;
+          showToast('칭찬 카드가 전송되었습니다! 💕');
+          resetForm();
+          switchTab('feed');
+        }, 600);
+        return;
+      }
+
+      try {
+        const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          // CORS preflight를 유발하지 않도록 text/plain 형식으로 JSON 문자열 전송
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('칭찬 카드가 전송되었습니다! 💕');
+          resetForm();
+          switchTab('feed');
+          loadCompliments();
+        } else {
+          showToast(result.message || '등록 중 오류가 발생했습니다.', 'error');
+        }
+      } catch (err) {
+        showToast('서버 전송 중 통신 오류가 발생했습니다.', 'error');
+        console.error('Submit error:', err);
+      } finally {
+        btnSubmit.disabled = false;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-paper-plane text-sm"></i><span>칭찬 카드 보내기</span>`;
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('complimentForm').reset();
+      document.getElementById('selectedEmoji').value = '💖';
+      renderEmojiPicker();
+      updateCharCount();
+      toggleAnonymousMode();
+    }
+
+    // 4. 하트 누르기 핸들러 (fetch POST)
+    async function handleLike(cardId, btnElement) {
+      if (likedSet.has(cardId)) {
+        showToast('이미 하트를 보낸 칭찬입니다 💕', 'info');
+        return;
+      }
+
+      const heartIcon = btnElement.querySelector('i');
+      const countSpan = btnElement.querySelector('.like-count');
+      const currentCount = parseInt(countSpan.textContent) || 0;
+
+      // 낙관적 UI 업데이트 (사용자에게 즉시 하트 증가 반응 표시)
+      likedSet.add(cardId);
+      try {
+        localStorage.setItem(LIKED_STORAGE_KEY, JSON.stringify(Array.from(likedSet)));
+      } catch (e) {}
+
+      btnElement.classList.remove('bg-white', 'border-slate-200', 'text-slate-400');
+      btnElement.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-500');
+      heartIcon.classList.remove('fa-regular');
+      heartIcon.classList.add('fa-solid', 'text-rose-500', 'heart-pop');
+      countSpan.textContent = currentCount + 1;
+
+      if (!GAS_API_URL || GAS_API_URL.includes('여기에_구글_웹앱_URL')) {
+        showToast('하트를 전했습니다! ❤️');
+        return;
+      }
+
+      // 서버 비동기 전송
+      try {
+        const payload = {
+          action: 'likeCompliment',
+          complimentId: cardId
+        };
+
+        const response = await fetch(GAS_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (result && result.likes !== undefined) {
+          countSpan.textContent = result.likes;
+        }
+      } catch (err) {
+        console.error('Like request error:', err);
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastContent = document.getElementById('toastContent');
+      const toastMessage = document.getElementById('toastMessage');
+      const toastIcon = document.getElementById('toastIcon');
+
+      clearTimeout(toastTimer);
+      toastMessage.textContent = message;
+
+      if (type === 'error') {
+        toastContent.className = 'px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold bg-rose-700 text-white min-w-[260px] justify-center';
+        toastIcon.className = 'fa-solid fa-triangle-exclamation text-rose-200';
+      } else if (type === 'warning' || type === 'info') {
+        toastContent.className = 'px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold bg-slate-800 text-white min-w-[260px] justify-center';
+        toastIcon.className = 'fa-solid fa-circle-info text-amber-300';
+      } else {
+        toastContent.className = 'px-5 py-3 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-semibold bg-slate-900 text-white min-w-[260px] justify-center';
+        toastIcon.className = 'fa-solid fa-heart text-rose-400';
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 2500);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
